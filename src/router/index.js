@@ -3,8 +3,20 @@ import NProgress from "nprogress";
 
 const routes = [
   {
+    path: "/",
+    redirect: '/lightBelt',
+  },
+  {
     path: "/lightBelt",
     component: () => import("@/view/lightBelt/index.vue"),
+  },
+  {
+    path: "/roomInventory",
+    component: () => import("@/view/roomInventory/index.vue"),
+  },
+  {
+    path: "/roomInventory/detail/:id",
+    component: () => import("@/view/roomInventory/detail/index.vue"),
   },
   {
     path: "/404",

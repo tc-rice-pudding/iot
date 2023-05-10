@@ -24,8 +24,6 @@
       @expand-change="expandChange"
       :expand-row-keys="expands"
       :default-sort="defSort"
-      @select="handleSelectionChange"
-      @select-all="handleSelectionAll"
     >
       <!-- 多选 -->
       <el-table-column
@@ -135,10 +133,6 @@ export default {
       type: Object,
       default: () => ({}),
     },
-    configChildren: {
-      type: Object,
-      default: () => ({}),
-    },
     dealListData: {
       type: Function,
     },
@@ -146,12 +140,6 @@ export default {
       type: Function,
       default: (row, column, cellValue, index) => {
         return cellValue;
-      },
-    },
-    selecTable: {
-      type: Function,
-      default: (row, index) => {
-        return true;
       },
     },
     rowClassNameFn: {
@@ -185,15 +173,6 @@ export default {
       type: Boolean,
       default: true,
     },
-    dealListChildrenData: {
-      type: Function,
-    },
-    formatterChildrenData: {
-      type: Function,
-      default: (row, column, cellValue, index) => {
-        return cellValue;
-      },
-    },
     childrenShow: {
       type: Boolean,
       default: false,
@@ -211,10 +190,8 @@ export default {
       fixedIndex: this.config.showIndex ? this.config.fixedIndex : false, // 序号是否固定
       showPagination: this.config.showPagination === undefined ? true : this.config.showPagination,
       total: (this.config.data || []).length || 0, // 总数
-      // currentPage: this.config.currentPage || 1, // 当前页
-      // pageSize: this.config.pageSize || 10, // 页数
-      currentPage:  1, // 当前页
-      pageSize:  10, // 页数
+      currentPage: this.config.currentPage || 1, // 当前页
+      pageSize: this.config.pageSize || 10, // 页数
       columns: this.config.columns || [], // 列数据
       sortObj: { ...this.defSort }, // 排序值
       listLoading: true, // 列表加载loading
@@ -477,54 +454,6 @@ export default {
     },
     filterChange(...rest) {
       this.$emit('filter-change', ...rest);
-    },
-    // 一级表格勾选
-    handleSelectionChange(selection, row) {
-      if (!this.childrenShow) return;
-      // 判断一级表格是否选中  选中--true  未选中--0
-      let isCheck = !!(selection.length && selection.indexOf(row) !== -1);
-      // 循环整个表数据--找到勾选的 index
-      this.showData.forEach((item, index) => {
-        if ((row.id && item.id === row.id) || (row.hardwareId && item.hardwareId === row.hardwareId)) {
-          // 在勾选时展开本行数据--不然找不到toggleRowSelection
-          this.$refs.commonTable.toggleRowExpansion(item, true);
-          setTimeout(() => {
-            let tempList = this.$refs[`childrenTable${index}`].showData;
-            this.$nextTick(() => {
-              // 以防二级列表没有数据
-              if (tempList) {
-                // 循环本次勾选的数据
-                tempList.forEach((selectionItem, selectionIndex) => {
-                  if (isCheck) {
-                    this.$refs[`childrenTable${index}`].$refs.commonTable.clearSelection();
-                    this.$refs[`childrenTable${index}`].$refs.commonTable.toggleAllSelection();
-                  } else {
-                    this.$refs[`childrenTable${index}`].$refs.commonTable.clearSelection();
-                    // this.$refs[`childrenTable${index}`].$refs.commonTable.toggleRowSelection(selectionItem, isCheck);
-                  }
-                });
-              }
-            });
-          }, 500);
-        }
-      });
-    },
-
-    // 一级表格全选->子表格全部勾选
-    handleSelectionAll(selection, row) {
-      if (!this.childrenShow) return;
-      this.showData.forEach(async (item, index) => {
-        await this.$refs.commonTable.toggleRowExpansion(item, true);
-        // 判断取消还是勾选--取消清空选择数据
-        setTimeout(() => {
-          if (selection.length) {
-            this.$refs[`childrenTable${index}`].$refs.commonTable.clearSelection();
-            this.$refs[`childrenTable${index}`].$refs.commonTable.toggleAllSelection();
-          } else {
-            this.$refs[`childrenTable${index}`].$refs.commonTable.clearSelection();
-          }
-        }, 500);
-      });
     },
   },
 };

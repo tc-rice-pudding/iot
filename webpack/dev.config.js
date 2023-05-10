@@ -24,7 +24,7 @@ module.exports = merge(BaseConfig, {
   mode: 'development',
   devServer: {
     publicPath: '/',
-    port: 8888,
+    port: 8088,
     host: '0.0.0.0',
     stats: {
       assets: false,
