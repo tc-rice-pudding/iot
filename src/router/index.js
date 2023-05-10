@@ -7,6 +7,10 @@ const routes = [
     redirect: '/lightBelt',
   },
   {
+    path: "/overview",
+    component: () => import("@/view/overview/index.vue"),
+  },
+  {
     path: "/lightBelt",
     component: () => import("@/view/lightBelt/index.vue"),
   },
