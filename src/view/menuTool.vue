@@ -17,7 +17,7 @@ import { routes } from "@/router/index";
 
 export default defineComponent({
   setup() {
-    const openNewTab = (model: string) => window.open(`/#/${model}`, "_blank");
+    const openNewTab = (path: string) => window.open(`/#${path}`, "_blank");
     const routeList = routes.filter((route) => Reflect.has(route, "name"));
 
     return { openNewTab, routeList };
