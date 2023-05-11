@@ -8,21 +8,11 @@
         <div class="left">
           <div class="group">
             <label>准确率低于</label>
-            <el-input
-              v-model="input"
-              size="small"
-              placeholder="Please input"
-              clearable
-            />
+            <el-input v-model="input" size="small" placeholder="" clearable />
           </div>
           <div class="group">
-            <label>准确率低于</label>
-            <el-input
-              v-model="input"
-              size="small"
-              placeholder="Please input"
-              clearable
-            />
+            <label>覆盖率低于</label>
+            <el-input v-model="input" size="small" placeholder="" clearable />
           </div>
         </div>
         <div class="right">
@@ -33,14 +23,32 @@
             @click="onMultipleInvent"
             >盘点</el-button
           >
-          <el-button
+          <!-- <el-button
             class="btn"
             size="small"
             type="primary"
             @click="onMultipleAnalysis"
             >分析</el-button
-          >
-          <el-button class="btn" size="small" type="primary">导出</el-button>
+          > -->
+          <el-dropdown class="export-drop">
+            <el-button class="btn" type="primary" size="small">
+              导出
+              <i class="el-icon-arrow-down el-icon--right"></i>
+            </el-button>
+            <template #dropdown>
+              <el-dropdown-menu>
+                <el-dropdown-item @click="onExportAll"
+                  >全部统计数据</el-dropdown-item
+                >
+                <el-dropdown-item @click="onExportSelect"
+                  >选中统计数据</el-dropdown-item
+                >
+                <el-dropdown-item @click="onExportSelectRes"
+                  >选中盘点结果</el-dropdown-item
+                >
+              </el-dropdown-menu>
+            </template>
+          </el-dropdown>
         </div>
       </header>
       <section>
@@ -80,9 +88,13 @@
 
 <script lang="ts">
 import { defineComponent, reactive, toRefs } from "vue";
-import Tree from "./tree.vue";
+import Tree from "@/view/common/tree.vue";
 import CommonTable from "@/component/elComponent/CommonTable.vue";
 
+// 列表 item
+export interface InventoryItemType {
+  // todo
+}
 export default defineComponent({
   name: "RoomInventory",
   components: {
@@ -163,8 +175,24 @@ export default defineComponent({
     const onMultipleAnalysis = () => {
       // todo
     };
+    const onExportAll = () => {
+      // todo
+    };
+    const onExportSelect = () => {
+      // todo
+    };
+    const onExportSelectRes = () => {
+      // todo
+    };
 
-    return { ...toRefs(tableDependence), onMultipleInvent, onMultipleAnalysis };
+    return {
+      ...toRefs(tableDependence),
+      onMultipleInvent,
+      onMultipleAnalysis,
+      onExportAll,
+      onExportSelect,
+      onExportSelectRes,
+    };
   },
 });
 </script>
@@ -200,7 +228,7 @@ export default defineComponent({
         }
       }
       .right {
-        width: 200px;
+        width: 260px;
         text-align: right;
         .btn {
           margin-left: 5px;

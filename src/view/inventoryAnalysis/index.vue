@@ -1,22 +1,7 @@
 <template>
   <div class="inventory-analysis-view">
     <aside>
-      <el-input
-        size="small"
-        style="margin: 5px 0"
-        v-model="filterText"
-        placeholder="Filter keyword"
-      />
-      <el-tree
-        ref="treeRef"
-        class="filter-tree"
-        show-checkbox
-        node-key="id"
-        :data="data"
-        :props="defaultProps"
-        default-expand-all
-        :filter-node-method="filterNode"
-      />
+      <tree></tree>
     </aside>
     <section>
       <div class="left">
@@ -55,20 +40,16 @@
 
 <script lang="ts">
 import { defineComponent, reactive, ref, toRefs, watch } from "vue";
+import Tree from "@/view/common/tree.vue";
 import Trend from "./trend.vue";
 import Reason from "./reason.vue";
 import Equipment from "./equipment.vue";
-import { ElTree } from "element-plus";
 
 type Tab = "trend" | "reason" | "equipment";
-interface Tree {
-  id: number;
-  label: string;
-  children?: Tree[];
-}
 export default defineComponent({
   name: "",
   components: {
+    Tree,
     Trend,
     Reason,
     Equipment,
@@ -76,76 +57,6 @@ export default defineComponent({
   setup() {
     const tab = ref<Tab>("trend");
     const datePicker = ref([]);
-
-    const treeDependence = reactive({
-      filterText: "",
-      treeRef: ref<InstanceType<typeof ElTree>>(),
-      defaultProps: {
-        children: "children",
-        label: "label",
-      },
-      filterNode: (value: string, data: Tree) => {
-        if (!value) return true;
-        return data.label.includes(value);
-      },
-      data: [
-        {
-          id: 1,
-          label: "Level one 1",
-          children: [
-            {
-              id: 4,
-              label: "Level two 1-1",
-              children: [
-                {
-                  id: 9,
-                  label: "Level three 1-1-1",
-                },
-                {
-                  id: 10,
-                  label: "Level three 1-1-2",
-                },
-              ],
-            },
-          ],
-        },
-        {
-          id: 2,
-          label: "Level one 2",
-          children: [
-            {
-              id: 5,
-              label: "Level two 2-1",
-            },
-            {
-              id: 6,
-              label: "Level two 2-2",
-            },
-          ],
-        },
-        {
-          id: 3,
-          label: "Level one 3",
-          children: [
-            {
-              id: 7,
-              label: "Level two 3-1",
-            },
-            {
-              id: 8,
-              label: "Level two 3-2",
-            },
-          ],
-        },
-      ] as Tree[],
-    });
-
-    watch(
-      () => treeDependence.filterText,
-      (val) => {
-        treeDependence.treeRef.filter(val);
-      }
-    );
 
     const onExport = () => {
       // todo
@@ -155,7 +66,6 @@ export default defineComponent({
       tab,
       datePicker,
       onExport,
-      ...toRefs(treeDependence),
     };
   },
 });

@@ -1,28 +1,12 @@
 import Axios from 'axios';
 const FETCH_TIMEOUT = 18000000;
 
-Axios.interceptors.request.use(
-  config => {
-    let token = window.localStorage.getItem('sid');
-    if (token) {
-      config.headers.common['token'] = token;
-    }
-    if (process.env.NODE_ENV === 'development') {
-      config.headers.common['jasypt'] = '4FjKbe76IfkTMpNItxuO/g=='; // 白名单token ,仅用于本地开发联调
-    }
-    return config;
-  },
-  err => {
-    return Promise.reject(err);
-  }
-);
-
 const JSONFetch = Axios.create({
   timeout: FETCH_TIMEOUT,
 });
 
 JSONFetch.interceptors.response.use(
-  function(response) {
+  function (response) {
     switch (+response.status) {
       case 200:
         return response.data;
@@ -31,7 +15,7 @@ JSONFetch.interceptors.response.use(
         return Promise.reject(response.data);
     }
   },
-  function(msg) {
+  function (msg) {
     console.error('[Fetch Status Error]\n', msg);
 
     const { response } = msg || {};
@@ -53,21 +37,37 @@ JSONFetch.interceptors.response.use(
   }
 );
 
-JSONFetch.interceptors.request.use(
-  function(config) {
-    try {
-      config.headers.token = window.localStorage.getItem('sid');
-      if (process.env.NODE_ENV === 'development') {
-        config.headers['jasypt'] = '4FjKbe76IfkTMpNItxuO/g=='; // 白名单token ,仅用于本地开发联调
-      }
-    } catch (error) {
-      console.log(error);
-    }
-    return config;
-  },
-  function(error) {
-    console.error('[Fetch Status Error]\n', error);
-    return Promise.reject(error);
-  }
-);
+// JSONFetch.interceptors.request.use(
+//   function (config) {
+//     try {
+//       config.headers.token = window.localStorage.getItem('sid');
+//       if (process.env.NODE_ENV === 'development') {
+//         config.headers['jasypt'] = '4FjKbe76IfkTMpNItxuO/g=='; // 白名单token ,仅用于本地开发联调
+//       }
+//     } catch (error) {
+//       console.log(error);
+//     }
+//     return config;
+//   },
+//   function (error) {
+//     console.error('[Fetch Status Error]\n', error);
+//     return Promise.reject(error);
+//   }
+// );
+
+// Axios.interceptors.request.use(
+//   config => {
+//     let token = window.localStorage.getItem('sid');
+//     if (token) {
+//       config.headers.common['token'] = token;
+//     }
+//     if (process.env.NODE_ENV === 'development') {
+//       config.headers.common['jasypt'] = '4FjKbe76IfkTMpNItxuO/g=='; // 白名单token ,仅用于本地开发联调
+//     }
+//     return config;
+//   },
+//   err => {
+//     return Promise.reject(err);
+//   }
+// );
 export { JSONFetch };

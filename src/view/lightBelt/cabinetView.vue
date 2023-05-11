@@ -88,6 +88,7 @@
 
 <script>
 export default {
+  name:'CabinetView',
   props: {
     lightConfigParam: {
       type: Array,
