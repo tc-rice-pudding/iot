@@ -95,36 +95,32 @@
     </div>
   </div>
 
-  <aside v-if="showMultiplePosition">
-    <common-dialog
-      showFooter
-      title="批量定位"
-      width="400px"
-      @handle-cancel="showMultiplePosition = false"
-    >
-      <template #content>
-        <el-input
-          v-model="uSpaceInput"
-          placeholder="请输入定位 u 位, 以逗号分隔"
-        />
-      </template>
-      <template #footer>
-        <div class="x-btn-group">
-          <el-button @click="doPositionMultiple" size="mini" type="primary"
-            >确定</el-button
-          >
-          <el-button @click="showMultiplePosition = false" size="mini"
-            >取消</el-button
-          >
-        </div>
-      </template>
-    </common-dialog>
-  </aside>
+  <common-dialog
+    v-if="showMultiplePosition"
+    showFooter
+    title="批量定位"
+    width="400px"
+    @handle-cancel="showMultiplePosition = false"
+  >
+    <template #content>
+      <el-input v-model="uSpaceInput" placeholder="请输入定位 u 位, 以逗号分隔"/>
+    </template>
+    <template #footer>
+      <div class="x-btn-group">
+        <el-button @click="doPositionMultiple" size="mini" type="primary"
+          >确定</el-button
+        >
+        <el-button @click="showMultiplePosition = false" size="mini"
+          >取消</el-button
+        >
+      </div>
+    </template>
+  </common-dialog>
 </template>
 
 <script>
 import CabinetView from "./cabinetView.vue";
-import CommonTable from "./CommonTable.vue";
+import CommonTable from "@/component/elComponent/CommonTable.vue";
 import CommonDialog from "@/component/elComponent/CommonDialog.vue";
 import { deepClonePlus, uuidv4 } from "@/utils/tool";
 import { monitInfo, doPosition } from "@/api/iot";
