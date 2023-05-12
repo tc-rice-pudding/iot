@@ -1,66 +1,63 @@
 <template>
     <div class="abnolmal-reason">
         <section class="echart-style">
-            <echart :option="lineOpt"></echart>
+            <echart :option="barOpt"></echart>
         </section>
     </div>
 </template>
 
 <script lang="ts">
 import {reactive, watch, computed} from 'vue';
-import Echart from '@/component/elComponent/Chart-Line.vue';
+import Echart from '@/component/elComponent/Chart-Bar.vue';
 
-
+export enum AbnolmalReasonEnum{
+    'deviceLossCount'= '设备丢失',
+    'positionWrongCount'= '位置错误',
+    'notLabelCount'='未检测到标签号',
+    'illegalCount'='非法在架'
+}
 
 export default{
     component:{Echart},
     props:{
         number:{
             type: String,
-            default: '',
+            default: 'project_root',
         },
-        type:{
-            type: String,
-            default: '',
-        }
     },
     
     setup(props){
-        let accuracyData: any = reactive({});
+        let abnolmalReasonData: any = reactive({});
         // let title = props.type ==='room' ? '机房盘点准确率变化' : '盘点准确率变化';
         watch(
             () => props.number,
             ()  =>{
-                if(props.type === 'room'){
-
-                }else{
-
-                }
+                abnolmalReasonData
             },
             {
                 immediate : true,
             }
         );
 
-        let room = computed(()=>{
-            if(Object.keys(accuracyData).length===0) return[];
-
-            const firstKey :any = (Object.keys(accuracyData) as String[])[0];
-            let firstObj = accuracyData[firstKey];
-            return [...Object.keys(firstObj)];
-        });
-
-        let lineOpt =  computed( ()=>{
+        let barOpt =  computed( ()=>{
             let allList : any = [];
-            for (const key in accuracyData){
-                allList.push(accuracyData[key]);
+            for (const key in abnolmalReasonData){
+                allList.push(abnolmalReasonData[key]);
             }
+            let abnolmalReasonName = computed(() => {
+                if(Object.keys(abnolmalReasonData).length===0) return[];
+                let firstKey = (Object.keys(abnolmalReasonData) as string[])[0];
+                let firstObj = abnolmalReasonData[firstKey];
+                return [...firstObj];
+            })
 
-            let seriesData = room.value.map(roomName =>{
+            let abnolmalReasonEnum:any = AbnolmalReasonEnum;
+            let seriesData = abnolmalReasonName.value.map(name =>{
                 return{
-                    name: roomName,
-                    type: 'line',
-                    data: allList.map((item:any)=> item[roomName])
+                    name: abnolmalReasonEnum[name],
+                    type: 'bar',
+                    stack:'one',
+                    data: allList.map((item:any)=> item[name])
                 };
             });
             
@@ -70,7 +67,7 @@ export default{
                     confine: true,
                 },
                 legend:{
-                    data:[...room.value],
+                    data:[...abnolmalReasonEnum.value],
                     type: 'scroll'
                 },
                 grid:{
@@ -81,18 +78,13 @@ export default{
                 },
                 xAxis: {
                     type: 'category',
-                    data: [...Object.keys(accuracyData)],
+                    data: [...Object.keys(abnolmalReasonData)],
                 },
                 yAxis:[
                     {
                         type: 'value',
                         axisLine: {
                             show: true,
-                        },
-                        axisLabel:{
-                            formatter: function(value:number){
-                                return value+'%'
-                            }
                         },
                         splitLine: {
                             lineStyle: {
@@ -105,7 +97,7 @@ export default{
                 series: [...seriesData],
             }
         });
-        return {lineOpt};
+        return {barOpt};
     }
 }
 

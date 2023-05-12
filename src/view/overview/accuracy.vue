@@ -41,10 +41,9 @@ export default{
 
         let room = computed(()=>{
             if(Object.keys(accuracyData).length===0) return[];
-
-            const firstKey :any = (Object.keys(accuracyData) as String[])[0];
-            let firstObj = accuracyData[firstKey];
-            return [...Object.keys(firstObj)];
+            const firstKey :any = (Object.keys(accuracyData) as string[])[0];
+            let firstObj = accuracyData[firstKey] as object[];
+            return firstObj.map((item:any)=> item.name);
         });
 
         let lineOpt =  computed( ()=>{
@@ -52,14 +51,21 @@ export default{
             for (const key in accuracyData){
                 allList.push(accuracyData[key]);
             }
-
-            let seriesData = room.value.map(roomName =>{
-                return{
-                    name: roomName,
-                    type: 'line',
-                    data: allList.map((item:any)=> item[roomName])
-                };
-            });
+            let seriesData :any  = [];
+            // for(let i=0; i< room.value.length;i++){
+            //     seriesData.push({
+            //         name: room.value[i],
+            //         type: 'line',
+            //         data: allList
+            //     })
+            // }
+            // let seriesData = room.value.map(roomName =>{
+            //     return{
+            //         name: roomName,
+            //         type: 'line',
+            //         data: allList.filter.map((item:any)=> item.value)
+            //     };
+            // });
             
             return {
                 tooltip:{

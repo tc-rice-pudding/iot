@@ -122,3 +122,9 @@ export const getResourceList = (
     data,
   });
 };
+
+// 概览盘点准确率变化
+export const buildingAccuracy = (resourceId: string) =>
+  JSONFetch.post<ResType>(`${baseUrl}/buildingAccuracy?resourceId=${resourceId}`);
+
+//
