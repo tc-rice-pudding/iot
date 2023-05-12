@@ -103,7 +103,10 @@
     @handle-cancel="showMultiplePosition = false"
   >
     <template #content>
-      <el-input v-model="uSpaceInput" placeholder="请输入定位 u 位, 以逗号分隔"/>
+      <el-input
+        v-model="uSpaceInput"
+        placeholder="请输入定位 u 位, 以逗号分隔"
+      />
     </template>
     <template #footer>
       <div class="x-btn-group">
@@ -133,14 +136,8 @@ export default {
     CommonTable,
     CommonDialog,
   },
-  // todo
   props: {
-    cabinetNumber: String,
-    zctID: String,
-    isBindZct: {
-      type: String,
-      default: "0",
-    },
+    activeTreeNode: Object,
   },
   data: function () {
     return {
@@ -195,23 +192,26 @@ export default {
     };
   },
   watch: {
-    cabinetNumber(value) {
-      this.$refs.table.refreshTableData();
-      this.warningUSpaceList = [];
+    activeTreeNode: {
+      handler() {
+        this.$refs.table.refreshTableData();
+        this.warningUSpaceList = [];
+      },
+      deep: true,
     },
   },
   methods: {
     // 监控信息列表
     dealListData(page, pageSize, sortObj) {
-      // isBindZct=0 为没有绑定资产条，没有绑定不展示设备
-      if (!this.cabinetNumber && [0, "0"].includes(this.isBindZct)) {
+      // 没有绑定资产条，没有绑定不展示设备
+      if (this.activeTreeNode.isBindZct) {
         return new Promise((res, rej) => {
           this.uList = U_LIST.reverse();
           res({ total: 0, data: [] });
         });
       }
       return new Promise((res, rej) => {
-        monitInfo({ number: this.cabinetNumber }).then(
+        monitInfo({ resourceId: this.activeTreeNode.resourceId }).then(
           ({ data, total }) => {
             const {
               isSingleDevice,
@@ -292,10 +292,10 @@ export default {
     },
     onPosition(row, status) {
       const params = {
-        cabinetNumber: this.cabinetNumber, // 所在机柜编号
+        cabinetId: this.activeTreeNode.resourceId, // 所在机柜编号
         unitList: [], // 定位的起始U位
         status: status, // 定位为1，取消定位为0
-        resourceId: [],
+        resourceId: [], // 设备resourceId
       };
       if (row.resourceId) {
         params.resourceId = [row.resourceId];
@@ -327,10 +327,10 @@ export default {
       let uSpaceInputArr = this.uSpaceInput.split(",").map((it) => Number(it));
 
       doPosition({
-        cabinetNumber: this.cabinetNumber, // 所在机柜编号
+        cabinetId: this.activeTreeNode.resourceId, // 所在机柜编号
         unitList: uSpaceInputArr, // 定位的起始U位
         status: this.handelType === "onPositionAll" ? 1 : 0, // 定位为1，取消定位为0
-        resourceId: [],
+        resourceId: [], // 设备resourceId
       })
         .then(
           ({ status }) => {

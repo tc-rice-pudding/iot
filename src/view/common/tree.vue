@@ -11,10 +11,11 @@
     />
     <el-tree
       ref="treeRef"
-      show-checkbox
-      node-key="id"
+      :show-checkbox="showCheckbox"
+      node-key="resourceId"
       :data="data"
       :props="defaultProps"
+      @node-click="nodeClick"
       default-expand-all
       :filter-node-method="filterNode"
     />
@@ -23,92 +24,126 @@
 
 <script lang="ts">
 import { defineComponent, reactive, ref, toRefs, watch } from "vue";
-import { getSpaceSubsInfo } from "@/api/iot";
-import { ElTree } from "element-plus";
+import { getSpaceSubsInfo, AOB } from "@/api/iot";
+import { ElMessage, ElTree } from "element-plus";
 
-interface Tree {
-  id: number;
-  label: string;
-  children?: Tree[];
+interface TreeData {
+  // 1:"区域"，2:"数据中心"，3:"楼栋"，4:"楼层"，5:"机房"，6:"机柜列"，7:"机柜位"，8:"机柜空间"
+  spaceType: "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8";
+  name: string;
+  resourceId: string;
+  parentId: string; // 空串代表根节点
+  location: string;
+  isBindZct?: boolean; // 是否绑定资产条（机柜的属性）
+  children?: TreeData[];
 }
+
 export default defineComponent({
-  setup() {
+  name: "IotTree",
+  props: {
+    showCheckbox: {
+      type: Boolean,
+      default: false,
+    },
+  },
+  emits: ["nodeClick"],
+  setup(props, { emit }) {
     const treeDependence = reactive({
       filterText: "",
       treeRef: ref<InstanceType<typeof ElTree>>(),
       defaultProps: {
         children: "children",
-        label: "label",
+        label: "name",
       },
-      filterNode: (value: string, data: Tree) => {
+      filterNode: (value: string, data: TreeData) => {
         if (!value) return true;
-        return data.label.includes(value);
+        return data.name.includes(value);
+      },
+      nodeClick: (node: TreeData) => {
+        if (node.spaceType !== "8") {
+          getSpaceSubsInfoRequest({ resourceId: node.resourceId });
+        } else {
+          emit("nodeClick", node);
+        }
       },
       data: [
         {
-          id: 1,
-          label: "Level one 1",
+          resourceId: "3",
+          name: "Level one 3",
           children: [
             {
-              id: 4,
-              label: "Level two 1-1",
-              children: [
-                {
-                  id: 9,
-                  label: "Level three 1-1-1",
-                },
-                {
-                  id: 10,
-                  label: "Level three 1-1-2",
-                },
-              ],
+              resourceId: "7",
+              name: "Level two 3-1",
+              spaceType: "8",
+            },
+            {
+              resourceId: "8",
+              name: "Level two 3-2",
             },
           ],
         },
-        {
-          id: 2,
-          label: "Level one 2",
-          children: [
-            {
-              id: 5,
-              label: "Level two 2-1",
-            },
-            {
-              id: 6,
-              label: "Level two 2-2",
-            },
-          ],
-        },
-        {
-          id: 3,
-          label: "Level one 3",
-          children: [
-            {
-              id: 7,
-              label: "Level two 3-1",
-            },
-            {
-              id: 8,
-              label: "Level two 3-2",
-            },
-          ],
-        },
-      ] as Tree[],
+      ] as TreeData[],
     });
 
+    const spaceTree = reactive({
+      // 树的 list 数据
+      data: [] as TreeData[],
+      // 构建空间树型结构的数据
+      buildTreeData: (parentNode: TreeData, list: TreeData[]) => {
+        if (parentNode.spaceType === "8") {
+          return;
+        }
+
+        if (!Array.isArray(parentNode.children)) {
+          parentNode.children = [];
+        }
+
+        list.forEach((item) => {
+          if (item.parentId === parentNode.resourceId) {
+            parentNode.children?.push(item);
+            spaceTree.buildTreeData(item, list);
+          }
+        });
+      },
+    });
+
+    // 获取树（list，需要处理成树形结构）
+    const getSpaceSubsInfoRequest = async (param: AOB) => {
+      try {
+        const { status, data, message } = await getSpaceSubsInfo(param);
+        if (status === 200) {
+          const filterRepeatData = ((data as TreeData[]) || []).filter((el) =>
+            spaceTree.data.find((it) => it.resourceId !== el.resourceId)
+          );
+
+          spaceTree.data.push(...filterRepeatData);
+          return;
+        }
+        ElMessage({ type: "error", message: "获取空间树失败..." });
+      } catch (error) {
+        console.log(error);
+      }
+    };
+    getSpaceSubsInfoRequest({ resourceId: "" }); // 初始化树形结构
+
     watch(
-      () => treeDependence.filterText,
-      (val) => {
-        treeDependence.treeRef.filter(val);
+      () => spaceTree.data,
+      () => {
+        const parentNodes = spaceTree.data.filter((it) => it.resourceId === "");
+        parentNodes.forEach((parentNode) => {
+          spaceTree.buildTreeData(parentNode, spaceTree.data);
+        });
+        treeDependence.data = parentNodes;
       }
     );
 
-    // try {
-    //   const res = await getSpaceSubsInfo();
-    //   treeDependence.data = res.resource;
-    // } catch (error) {
-    //   console.log(error);
-    // }
+    watch(
+      () => treeDependence.filterText,
+      async (val) => {
+        await getSpaceSubsInfoRequest({ name: val });
+        treeDependence.treeRef.filter(val);
+      }
+    );
 
     return { ...toRefs(treeDependence) };
   },

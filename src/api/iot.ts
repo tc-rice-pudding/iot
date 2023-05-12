@@ -30,7 +30,9 @@ export interface SearchType {
 
 // ----------------灯带展示 start----------------
 // 空间树
-export const getSpaceSubsInfo = () => JSONFetch.get<ResType>('/dcim/cabinet/getSpaceSubsInfo');
+// export const getSpaceSubsInfo = () => JSONFetch.get<ResType>('/dcim/cabinet/getSpaceSubsInfo');
+export type AOB = ({ resourceId?: never } & { name: string; }) | ({ name?: never } & { resourceId: string; });
+export const getSpaceSubsInfo = (params: AOB) => JSONFetch({ method: 'post', url: `/dcim/cabinet/doPosition`, data: params });
 // 定位/取消定位
 export interface PositionType {
     cabinetId: string, // 所在机柜id，点击U位定位需要传机柜id和起始U位 是定位状态

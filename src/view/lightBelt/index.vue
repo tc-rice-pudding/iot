@@ -2,14 +2,11 @@
   <div class="wrap">
     <section>
       <div class="left-section">
-        <tree></tree>
+        <tree @nodeClick="(node) => {activeTreeNode = node}"/>
       </div>
       <div class="right-section">
         <el-scrollbar height="100%">
-          <monitoring-info
-            :cabinetNumber="cabinetNumber"
-            :zctID="zctID"
-          ></monitoring-info>
+          <monitoring-info :activeTreeNode="activeTreeNode" />
         </el-scrollbar>
       </div>
     </section>
@@ -27,7 +24,8 @@ export default defineComponent({
     Tree,
   },
   setup() {
-    return {};
+    const activeTreeNode = reactive({});
+    return { activeTreeNode };
   },
 });
 </script>

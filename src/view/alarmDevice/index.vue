@@ -73,7 +73,7 @@
 
 <script lang="ts">
 import { defineComponent, reactive, toRefs } from "vue";
-import Tree from "@/view/roomInventory/tree.vue";
+import Tree from "@/view/common/tree.vue";
 import CommonTable from "@/component/elComponent/CommonTable.vue";
 
 export default defineComponent({
