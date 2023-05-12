@@ -56,7 +56,6 @@ import {
 import { useRoute, useRouter } from 'vue-router';
 import { getNodeInfo, getSubNodesInfo } from '@/api/overview';
 import { ResType, SpaceNodeType } from '@/types/overview';
-import { sortFn } from '@/view/resourceManage/enumData.js';
 
 export default defineComponent({
   props: {
@@ -158,9 +157,6 @@ export default defineComponent({
     ): Promise<SpaceNodeType[] | null> => {
       const result = (await getSubNodesInfo(rid)) as unknown as ResType;
       if (result && `${result.status}` === '200' && result.data) {
-        if (rid === 'project_root') {
-          sortFn(result?.data);
-        }
         const { data } = result;
         return data.map(
           (item: {
