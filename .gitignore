@@ -3,7 +3,7 @@ node_modules
 /dist
 /mock
 /mock/*
-
+.DS_Store
 debug.log
 
 # package-lock.json

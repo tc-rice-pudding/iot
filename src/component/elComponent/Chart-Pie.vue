@@ -61,9 +61,8 @@ export default defineComponent({
             type: 'pie',
             radius: '30%',
             data: [
-              { name: '已使用', value: 100 },
-              { name: '预布局', value: 100 },
-              { name: '未布局', value: 100 },
+              { name: '正常', value: 100 },
+              { name: '异常', value: 100 },
             ],
           },
         ],
