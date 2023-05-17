@@ -26,24 +26,27 @@
       </el-tabs>
 
       <div v-if="tab === 'trend'" class="detail-content">
-        <trend />
+        <trend :datePicker="datePicker" :checkedNode="nodeCheckedList" />
       </div>
       <div v-if="tab === 'reason'" class="detail-content">
-        <reason />
+        <reason :datePicker="datePicker" :checkedNode="nodeCheckedList" />
       </div>
       <div v-if="tab === 'equipment'" class="detail-content">
-        <equipment />
+        <equipment :datePicker="datePicker" :checkedNode="nodeCheckedList" />
       </div>
     </section>
   </div>
 </template>
 
 <script lang="ts">
-import { defineComponent, reactive, ref, toRefs, watch } from "vue";
+import { computed, defineComponent, reactive, ref, toRefs, watch } from "vue";
 import Tree from "@/view/common/tree.vue";
 import Trend from "./trend.vue";
 import Reason from "./reason.vue";
 import Equipment from "./equipment.vue";
+import { fileDownload } from "@/utils/tool";
+import { accuracyExport } from "@/api/iot";
+import { ElMessage } from "element-plus";
 
 type Tab = "trend" | "reason" | "equipment";
 export default defineComponent({
@@ -57,15 +60,30 @@ export default defineComponent({
   setup() {
     const tab = ref<Tab>("trend");
     const datePicker = ref([]);
+    let nodeCheckedList = ref([]);
 
-    const onExport = () => {
-      // todo
+    let resourceIdList = computed(()=>nodeCheckedList.value.map(it=>it.resourceId));
+
+    const onExport = async () => {
+      const [startTime, endTime] = datePicker.value;
+      try {
+        const { status, data, headers } = await accuracyExport( startTime, endTime, resourceIdList.value);
+        if (status === 200 && data.size > 0) {
+          let name = headers["content-disposition"].match(/filename=(.*)/)[1];
+          fileDownload(data, decodeURI(name), false);
+        } else {
+          ElMessage({ type: "error", message: data?.message || "下载失败！" });
+        }
+      } catch (error) {
+        console.log(error);
+      }
     };
 
     return {
       tab,
       datePicker,
       onExport,
+      nodeCheckedList,
     };
   },
 });

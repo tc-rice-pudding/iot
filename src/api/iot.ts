@@ -82,9 +82,10 @@ export const infoExport = (key: string, resourceId: string) => axios.post('/dcim
 
 // ----------------盘点分析 start----------------
 // 准确率趋势 
-export const inventoryList2 = (startTime: string, endTime: string, resourceIds: string[]) => JSONFetch({ method: 'post', url: `/dcim/umonitor/room/inventory/list`, data: { startTime, endTime, resourceIds } });
+export const trendRequest = (startTime: string, endTime: string, resourceIds: string[]) => JSONFetch({ method: 'post', url: `/dcim/inventoryAnalyseController/accuracy`, data: { startTime, endTime, resourceIds } });
 // 不准确原因/不准确设备趋势
-export const inventoryList3 = (startTime: string, endTime: string, resourceIds: string[]) => JSONFetch({ method: 'post', url: `/dcim/umonitor/room/inventory/list`, data: { startTime, endTime, resourceIds } });
+export const ReasonRequest = (startTime: string, endTime: string, resourceIds: string[]) => JSONFetch({ method: 'post', url: `/dcim/inventoryAnalyseController/unaccuracy`, data: { startTime, endTime, resourceIds } });
+export const accuracyExport = (startTime: string, endTime: string, resourceIds: string[]) => axios.post('/dcim/inventoryAnalyseController/accuracy/export', { startTime, endTime, resourceIds }, { responseType: 'blob' });
 // ----------------盘点分析 end----------------
 
 
